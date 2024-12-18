@@ -2,7 +2,7 @@
 
   <h1 style="font-style: italic;">考场信息管理</h1>
   <div class="flex flex-wrap gap-4 items-center">
-    <el-input v-model="searchMessage" style="width: 240px" placeholder="请输入搜索的内容..." >
+    <el-input v-model="searchMessage" style="width: 240px" placeholder="请输入搜索的内容...">
       <template #prepend>搜索</template>
     </el-input>
     <el-select-v2
@@ -11,20 +11,20 @@
         placeholder="请输入搜索类型..."
         style="width: 240px"
     />
-    <el-button type="primary" @click="search" >搜索</el-button>
+    <el-button type="primary" @click="search">搜索</el-button>
 
     <el-button type="primary" @click="dialogCreateVisible = true">创建</el-button>
 
     <el-dialog v-model="dialogCreateVisible" title="创建新的考场" width="500">
       <el-form :model="createForm">
-        <el-form-item label="考场编号" >
-          <el-input v-model="createForm.roomNumber" autocomplete="off" />
+        <el-form-item label="考场编号">
+          <el-input v-model="createForm.roomNumber" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="考场位置" >
-          <el-input v-model="createForm.location" autocomplete="off" />
+        <el-form-item label="考场位置">
+          <el-input v-model="createForm.location" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="考场容量" >
-          <el-input v-model="createForm.capacity" autocomplete="off" />
+        <el-form-item label="考场容量">
+          <el-input v-model="createForm.capacity" autocomplete="off"/>
         </el-form-item>
         <div class="my-2 ml-4">
           <el-radio-group v-model="createForm.status">
@@ -48,32 +48,32 @@
 
   <div class="content">
     <el-table :data="tableData" stripe style="width: 100%">
-      <el-table-column prop="id" label="ID" width="150" />
-      <el-table-column prop="roomNumber" label="考场编号" width="120" />
-      <el-table-column prop="location" label="考场位置" width="120" />
-      <el-table-column prop="capacity" label="考场容量" width="120" />
+      <el-table-column prop="id" label="ID" width="150"/>
+      <el-table-column prop="roomNumber" label="考场编号" width="120"/>
+      <el-table-column prop="location" label="考场位置" width="120"/>
+      <el-table-column prop="capacity" label="考场容量" width="120"/>
       <el-table-column label="考场状态" width="600">
         <template #default="scope">
-          {{ scope.row.status === 0 ? '空闲' : '占用' }}
+          {{ scope.row.status === '0' ? '空闲' : '占用' }}
         </template>
       </el-table-column>
       <el-table-column label="Operations" min-width="120">
         <template v-slot="scope">
-          <el-button link type="primary" size="small" @click="dialogEditVisible = true">Edit</el-button>
+          <el-button link type="primary" size="small" @click="handleEdit(scope.$index, scope.row)">Edit</el-button>
           <el-button link type="danger" size="small" @click="remove(scope.row.id)">Delete</el-button>
           <el-dialog v-model="dialogEditVisible" title="修改考场信息" width="500">
-            <el-form :model="scope.row">
-              <el-form-item label="考场编号" >
-                <el-input v-model="scope.row.roomNumber" autocomplete="off" />
+            <el-form :v-model="editForm">
+              <el-form-item label="考场编号">
+                <el-input v-model="editForm.roomNumber" autocomplete="off"/>
               </el-form-item>
-              <el-form-item label="考场位置" >
-                <el-input v-model="scope.row.location" autocomplete="off" />
+              <el-form-item label="考场位置">
+                <el-input v-model="editForm.location" autocomplete="off"/>
               </el-form-item>
-              <el-form-item label="考场容量" >
-                <el-input v-model="scope.row.capacity" autocomplete="off" />
+              <el-form-item label="考场容量">
+                <el-input v-model="editForm.capacity" autocomplete="off"/>
               </el-form-item>
               <div class="my-2 ml-4">
-                <el-radio-group v-model="scope.row.status">
+                <el-radio-group v-model="editForm.status">
                   <el-radio value="0">空闲</el-radio>
                   <el-radio value="1">占用</el-radio>
                 </el-radio-group>
@@ -82,7 +82,7 @@
             <template #footer>
               <div class="dialog-footer">
                 <el-button @click="dialogEditVisible = false">取消</el-button>
-                <el-button type="primary" @click="editExam(scope.row)">
+                <el-button type="primary" @click="editExam(editForm)">
                   修改
                 </el-button>
               </div>
@@ -100,12 +100,13 @@ import {onMounted, reactive, ref} from "vue";
 import myAxios from "../config/my-axios";
 import {ElNotification} from "element-plus";
 
+const dialogEditVisible = ref(false);
 const tableData = ref([]);
 let searchMessage = ref('');
 const initials = ['ID', '考场编号', '考场位置', '考场容量', '考场状态'];
 const value = ref();
-const dialogEditVisible = ref(false);
-const options = Array.from({ length: 5 }).map((_, idx) => ({
+
+const options = Array.from({length: 5}).map((_, idx) => ({
   value: `${idx}`,
   label: `${initials[idx]}`,
 }));
@@ -114,10 +115,10 @@ const st = ['id', 'roomNumber', 'location', 'capacity', 'status'];
 const dialogCreateVisible = ref(false);
 
 const createForm = reactive({
-    roomNumber: "",
-    location: "",
-    capacity: "",
-    status: "0",
+  roomNumber: "",
+  location: "",
+  capacity: "",
+  status: "0",
 })
 
 const createExam = async () => {
@@ -177,12 +178,13 @@ const remove = async (id) => {
 }
 
 const editExam = async (row) => {
+  console.log(row.id);
   let res = await myAxios.post("/exam/update", {
-      id: row.id,
-      roomNumber: row.roomNumber,
-      location: row.location,
-      capacity: row.capacity,
-      status: row.status,
+    id: row.id,
+    roomNumber: row.roomNumber,
+    location: row.location,
+    capacity: row.capacity,
+    status: row.status,
   });
 
   if (res.code !== 0) {
@@ -198,6 +200,7 @@ const editExam = async (row) => {
     if (r.id !== row.id) {
       return r;
     } else {
+      console.log(r.id, " ", row.id);
       r.roomNumber = row.roomNumber;
       r.location = row.location;
       r.status = row.status;
@@ -205,8 +208,24 @@ const editExam = async (row) => {
       return r;
     }
   });
-
   dialogEditVisible.value = false;
+}
+
+const editIndex = ref(-1);
+
+const editForm = ref({
+  roomNumber: '',
+  location: '',
+  capacity: '',
+  status: '',
+})
+
+const handleEdit = (index, row) => {
+  console.log(index);
+  console.log(row);
+  editIndex.value = index;
+  editForm.value = Object.assign({}, row);
+  dialogEditVisible.value = true;
 }
 
 
