@@ -42,6 +42,33 @@
         </div>
       </template>
     </el-dialog>
+    <el-dialog v-model="dialogEditVisible" title="修改考场信息" width="500">
+      <el-form :v-model="editForm">
+        <el-form-item label="考场编号">
+          <el-input v-model="editForm.roomNumber" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item label="考场位置">
+          <el-input v-model="editForm.location" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item label="考场容量">
+          <el-input v-model="editForm.capacity" autocomplete="off"/>
+        </el-form-item>
+        <div class="my-2 ml-4">
+          <el-radio-group v-model="editForm.status">
+            <el-radio value="0">空闲</el-radio>
+            <el-radio value="1">占用</el-radio>
+          </el-radio-group>
+        </div>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="dialogEditVisible = false">取消</el-button>
+          <el-button type="primary" @click="editExam(editForm)">
+            修改
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
 
   </div>
 
@@ -61,35 +88,7 @@
         <template v-slot="scope">
           <el-button link type="primary" size="small" @click="handleEdit(scope.$index, scope.row)">Edit</el-button>
           <el-button link type="danger" size="small" @click="remove(scope.row.id)">Delete</el-button>
-          <el-dialog v-model="dialogEditVisible" title="修改考场信息" width="500">
-            <el-form :v-model="editForm">
-              <el-form-item label="考场编号">
-                <el-input v-model="editForm.roomNumber" autocomplete="off"/>
-              </el-form-item>
-              <el-form-item label="考场位置">
-                <el-input v-model="editForm.location" autocomplete="off"/>
-              </el-form-item>
-              <el-form-item label="考场容量">
-                <el-input v-model="editForm.capacity" autocomplete="off"/>
-              </el-form-item>
-              <div class="my-2 ml-4">
-                <el-radio-group v-model="editForm.status">
-                  <el-radio value="0">空闲</el-radio>
-                  <el-radio value="1">占用</el-radio>
-                </el-radio-group>
-              </div>
-            </el-form>
-            <template #footer>
-              <div class="dialog-footer">
-                <el-button @click="dialogEditVisible = false">取消</el-button>
-                <el-button type="primary" @click="editExam(editForm)">
-                  修改
-                </el-button>
-              </div>
-            </template>
-          </el-dialog>
         </template>
-
       </el-table-column>
     </el-table>
   </div>
@@ -178,7 +177,6 @@ const remove = async (id) => {
 }
 
 const editExam = async (row) => {
-  console.log(row.id);
   let res = await myAxios.post("/exam/update", {
     id: row.id,
     roomNumber: row.roomNumber,
@@ -200,7 +198,6 @@ const editExam = async (row) => {
     if (r.id !== row.id) {
       return r;
     } else {
-      console.log(r.id, " ", row.id);
       r.roomNumber = row.roomNumber;
       r.location = row.location;
       r.status = row.status;
@@ -221,8 +218,6 @@ const editForm = ref({
 })
 
 const handleEdit = (index, row) => {
-  console.log(index);
-  console.log(row);
   editIndex.value = index;
   editForm.value = Object.assign({}, row);
   dialogEditVisible.value = true;
