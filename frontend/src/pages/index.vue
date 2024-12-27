@@ -84,10 +84,10 @@
           {{ scope.row.status === '0' ? '空闲' : '占用' }}
         </template>
       </el-table-column>
-      <el-table-column label="Operations" min-width="120">
+      <el-table-column label="选项" min-width="120">
         <template v-slot="scope">
-          <el-button link type="primary" size="small" @click="handleEdit(scope.$index, scope.row)">Edit</el-button>
-          <el-button link type="danger" size="small" @click="remove(scope.row.id)">Delete</el-button>
+          <el-button link type="primary" size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+          <el-button link type="danger" size="small" @click="remove(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -109,7 +109,7 @@ const options = Array.from({length: 5}).map((_, idx) => ({
   value: `${idx}`,
   label: `${initials[idx]}`,
 }));
-const st = ['id', 'roomNumber', 'location', 'capacity', 'status'];
+const st = ['id', 'room_number', 'location', 'capacity', 'status'];
 
 const dialogCreateVisible = ref(false);
 
